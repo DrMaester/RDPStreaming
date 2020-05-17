@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace RDPStreaming.ServerApp.Services
 {
-    public class LoginService
+    public class LoginService : IDisposable
     {
         private readonly object _newStreamerObserverLock = new object();
         private readonly object _removeStreamerObserverLock = new object();
@@ -39,6 +39,11 @@ namespace RDPStreaming.ServerApp.Services
             _removeStreamerObserver = new Dictionary<string, IServerStreamWriter<StreamerClient>>();
         }
 
+        public void Dispose()
+        {
+            // TODO
+        }
+
         public Task<string> LoginAsStreamerAsync(string computerName)
         {
             var streamerClient = new StreamerClient
@@ -60,6 +65,7 @@ namespace RDPStreaming.ServerApp.Services
 
             return Task.FromResult(string.Empty);
         }
+
 
         public bool IsAuthTokenValid(string authToken)
         {

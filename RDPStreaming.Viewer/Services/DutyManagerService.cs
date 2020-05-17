@@ -9,6 +9,7 @@ using RDPStreaming.Viewer.Logging;
 using Protos;
 using System.Threading.Tasks;
 using System.Threading;
+using System.Printing;
 
 namespace RDPStreaming.Viewer.Services
 {
@@ -18,12 +19,14 @@ namespace RDPStreaming.Viewer.Services
         private GrpcChannel _channel;
         private Protos.DutyManager.DutyManagerClient _client;
         private string _authKey;
+        private List<AuthJobRequest> _runningJobs;
 
         public DutyManagerService(string address)
         {
             _address = address;
             _channel = GrpcChannel.ForAddress(_address);
             _client = new Protos.DutyManager.DutyManagerClient(_channel);
+            _runningJobs = new List<AuthJobRequest>();
         }
 
         public async void Dispose()
@@ -31,6 +34,8 @@ namespace RDPStreaming.Viewer.Services
             _client = null;
             await _channel.ShutdownAsync();
             _channel = null;
+            _runningJobs?.Clear();
+            _runningJobs = default;
         }
 
         public async void StartObserveForNewStreamer(Action<StreamerClient> newStreamerClientCallback)
@@ -83,7 +88,38 @@ namespace RDPStreaming.Viewer.Services
             {
                 Mouse.OverrideCursor = null;
             }
+        }
 
+        public void StartStreamingJob(StreamerClient streamerClient)
+        {
+            var authRequest = new AuthJobRequest()
+            {
+                AuthKey = _authKey,
+                StreamerId = streamerClient.Id,
+                Job = new Job()
+                {
+                    JobId = Guid.NewGuid().ToString(),
+                    JobType = Job.Types.JobType.StartStreaming,
+                }
+            };
+
+            _client.CreateNewJob(authRequest);
+        }
+
+        public void StartCloseApplicationJob(StreamerClient streamerClient)
+        {
+            var authRequest = new AuthJobRequest()
+            {
+                AuthKey = _authKey,
+                StreamerId = streamerClient.Id,
+                Job = new Job()
+                {
+                    JobId = Guid.NewGuid().ToString(),
+                    JobType = Job.Types.JobType.CloseApplication,
+                }
+            };
+
+            _client.CreateNewJob(authRequest);
         }
     }
 }

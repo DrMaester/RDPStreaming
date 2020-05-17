@@ -13,10 +13,12 @@ namespace RDPStreaming.ServerApp.ProtoForwarder
     public class DutyManagerForwarder : Protos.DutyManager.DutyManagerBase
     {
         private readonly LoginService _loginService;
+        private readonly JobService _jobService;
 
-        public DutyManagerForwarder(LoginService loginService)
+        public DutyManagerForwarder(LoginService loginService, JobService jobService)
         {
             this._loginService = loginService;
+            this._jobService = jobService;
         }
 
         public override async Task NewStreamerStream(StringValue request, IServerStreamWriter<StreamerClient> responseStream, ServerCallContext context)
@@ -74,6 +76,27 @@ namespace RDPStreaming.ServerApp.ProtoForwarder
             {
                 _loginService.StreamerDisconnected(userkey);
             }
+        }
+
+        public override async Task StartJobObserver(StringValue request, IServerStreamWriter<Job> responseStream, ServerCallContext context)
+        {
+            
+            var cancellationToken = new CancellationTokenSource();
+            _jobService.AddJobObserver(request.Value, responseStream);
+            Task t = Task.Run(() =>
+            {
+                do
+                {
+                    Task.Delay(1000).Wait();
+                } while (!cancellationToken.IsCancellationRequested && !context.CancellationToken.IsCancellationRequested);
+            });
+            await t;
+        }
+
+        public override Task CreateNewJob(AuthJobRequest request, IServerStreamWriter<JobAnswer> responseStream, ServerCallContext context)
+        {
+            _jobService.NewJobRequest(request);
+            return Task.CompletedTask;
         }
     }
 }

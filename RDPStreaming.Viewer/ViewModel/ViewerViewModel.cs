@@ -1,5 +1,6 @@
 ﻿using Protos;
 using RDPStreaming.Viewer.Rendering;
+using RDPStreaming.Viewer.Services;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -18,6 +19,8 @@ namespace RDPStreaming.Viewer.ViewModel
         private bool isDisposing;
         private string _connectionName;
         private System.Windows.Forms.Control _hostControl;
+        private DutyManagerService _dutyManagerService;
+
         public StreamerClient StreamerClient { get; private set; }
         public IScreenRenderer ScreenRenderer { get; private set; }
         public WindowsFormsHost HostControlWrapper { get; private set; }
@@ -27,15 +30,18 @@ namespace RDPStreaming.Viewer.ViewModel
             set { _connectionName = value; OnPropertyChanged(nameof(ConnectionName)); }
         }
 
-        public ViewerViewModel(StreamerClient streamerClient)
+        public ViewerViewModel(StreamerClient streamerClient, DutyManagerService dutyManagerService)
         {
             StreamerClient = streamerClient;
+            _dutyManagerService = dutyManagerService;
             ConnectionName = $"{StreamerClient.ComputerName} - {StreamerClient.Id}";
             CreateRendererControl();
         }
 
         public void Dispose()
         {
+            _dutyManagerService = default;
+
             isDisposing = true;
             StreamerClient = default;
 
@@ -52,6 +58,7 @@ namespace RDPStreaming.Viewer.ViewModel
 
         public void StartRendering()
         {
+            SendCloseApplicationJobAsync();
             Task.Run(() =>
             {
                 while (!isDisposing)
@@ -104,6 +111,17 @@ namespace RDPStreaming.Viewer.ViewModel
                 size = new System.Drawing.Size(1, 1);
             }
             ScreenRenderer.UpdateHostHandle(_hostControl.Handle, size);
+        }
+
+        private void SendStartStreamJob()
+        {
+
+        }
+
+        private async void SendCloseApplicationJobAsync()
+        {
+            await Task.Delay(1000);
+            _dutyManagerService.StartCloseApplicationJob(StreamerClient);
         }
     }
 }

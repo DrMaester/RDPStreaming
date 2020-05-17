@@ -25,6 +25,11 @@ namespace RDPStreaming.Streamer
                 await Task.Delay(TimeSpan.FromSeconds(1));
             } while (!isLoggedIn);
 
+            _dutyManagerService.CloseApplicationCallback = CloseApplication;
+            _dutyManagerService.StartStreamCallback = StartStreaming;
+            _dutyManagerService.StopStreamCallback = StopStreaming;
+            _dutyManagerService.StartListeningForJobsAsync();
+
             Console.ReadKey();
         }
 
@@ -33,6 +38,22 @@ namespace RDPStreaming.Streamer
             var path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "log4net.config");
             var logRepository = log4net.LogManager.GetRepository(Assembly.GetExecutingAssembly());
             log4net.Config.XmlConfigurator.Configure(logRepository, new FileInfo(path));
+        }
+
+        private static void CloseApplication(Protos.Job job)
+        {
+            Console.WriteLine("closing now..");
+            Environment.Exit(0);
+        }
+
+        private static void StartStreaming(Protos.Job job)
+        {
+            Console.WriteLine("new job request: start streaming");
+        }
+
+        private static void StopStreaming(Protos.Job job)
+        {
+            Console.WriteLine("new job request: stop streaming");
         }
     }
 }

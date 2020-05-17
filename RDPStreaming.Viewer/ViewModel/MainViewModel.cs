@@ -132,11 +132,10 @@ namespace RDPStreaming.Viewer.ViewModel
 
         private void SelectConnectionCallback(StreamerClient client)
         {
-            MessageBox.Show($"Streamer selected: {client.ComputerName}:{client.Id}");
             if (ViewerViewModels.Any(vm => vm.StreamerClient == client))
                 return;
 
-            var vm = new ViewerViewModel(client);
+            var vm = new ViewerViewModel(client, _dutyManagerService);
             ViewerViewModels.Add(vm);
             vm.StartRendering();
         }

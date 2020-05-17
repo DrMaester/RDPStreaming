@@ -17,6 +17,9 @@ namespace RDPStreaming.Streamer.Services
         private GrpcChannel _channel;
         private DutyManager.DutyManagerClient _client;
         private AsyncServerStreamingCall<Empty> _holdingLineRequest;
+        public Action<Job> StartStreamCallback { get; set; }
+        public Action<Job> StopStreamCallback { get; set; }
+        public Action<Job> CloseApplicationCallback { get; set; }
 
         public DutyManagerService(string address)
         {
@@ -29,6 +32,10 @@ namespace RDPStreaming.Streamer.Services
             _holdingLineRequest?.Dispose();
             _channel?.ShutdownAsync().Wait(TimeSpan.FromSeconds(5));
             _channel?.Dispose();
+
+            StartStreamCallback = default;
+            StopStreamCallback = default;
+            CloseApplicationCallback = default;
         }
 
         public async Task<bool> LoginAsync()
@@ -48,6 +55,29 @@ namespace RDPStreaming.Streamer.Services
             }
 
             return true;
+        }
+
+        public async void StartListeningForJobsAsync()
+        {
+            var asyncStream = _client.StartJobObserver(new StringValue { Value = _userKey });
+            while (await asyncStream.ResponseStream.MoveNext())
+            {
+                var currentJobRequest = asyncStream.ResponseStream.Current;
+                switch (currentJobRequest.JobType)
+                {
+                    case Job.Types.JobType.None:
+                        break;
+                    case Job.Types.JobType.CloseApplication:
+                        CloseApplicationCallback?.Invoke(currentJobRequest);
+                        break;
+                    case Job.Types.JobType.StartStreaming:
+                        StartStreamCallback?.Invoke(currentJobRequest);
+                        break;
+                    case Job.Types.JobType.StopStreaming:
+                        StopStreamCallback?.Invoke(currentJobRequest);
+                        break;
+                }
+            }
         }
 
         private void StreamerHoldingLine()

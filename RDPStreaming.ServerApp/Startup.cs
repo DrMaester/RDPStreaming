@@ -18,6 +18,7 @@ namespace RDPStreaming.ServerApp
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddSingleton<LoginService>();
+            services.AddSingleton<JobService>();
             services.AddGrpc();
         }
 
