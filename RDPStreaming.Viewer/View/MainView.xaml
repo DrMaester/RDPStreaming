@@ -1,0 +1,64 @@
+﻿<Window x:Class="RDPStreaming.Viewer.View.MainView"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:RDPStreaming.Viewer.View"
+        xmlns:vm="clr-namespace:RDPStreaming.Viewer.ViewModel"
+        mc:Ignorable="d" WindowStartupLocation="CenterScreen"
+        Title="Viewer" Height="450" Width="800">
+    <Window.Resources>
+        <DataTemplate DataType="{x:Type vm:ActiveConnectionListViewModel}">
+            <local:ActiveConnectionListView/>
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:ViewerViewModel}">
+            <local:ViewerView/>
+        </DataTemplate>
+    </Window.Resources>
+    <Grid>
+
+        <Button VerticalAlignment="Center" HorizontalAlignment="Center" Content="Login" Padding="5" Width="100"
+                Command="{Binding LoginCommand}">
+            <Button.Style>
+                <Style TargetType="Button">
+                    <Setter Property="Visibility" Value="Visible"/>
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding LoggedIn}" Value="True">
+                            <Setter Property="Visibility" Value="Collapsed"/>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </Button.Style>
+        </Button>
+        <Grid>
+            <Grid.Style>
+                <Style TargetType="Grid">
+                    <Setter Property="Visibility" Value="Collapsed"/>
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding LoggedIn}" Value="True">
+                            <Setter Property="Visibility" Value="Visible"/>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </Grid.Style>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="200"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <ContentPresenter Content="{Binding ActiveConnectionsViewModel,UpdateSourceTrigger=PropertyChanged}"/>
+            <TabControl Grid.Column="1" ItemsSource="{Binding ViewerViewModels}">
+                <TabControl.ItemTemplate>
+                    <DataTemplate>
+                        <DockPanel VerticalAlignment="Center">
+                            <Button Content="X" DockPanel.Dock="Right" Margin="10 3 0 3" Padding="5 0 5 0"
+                                    Command="{Binding DataContext.DeactivateConnectionCommand, 
+                                RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}}"
+                                    CommandParameter="{Binding}"/>
+                            <TextBlock Text="{Binding ConnectionName}" DockPanel.Dock="Left" VerticalAlignment="Center"/>
+                        </DockPanel>
+                    </DataTemplate>
+                </TabControl.ItemTemplate>
+            </TabControl>
+        </Grid>
+    </Grid>
+</Window>

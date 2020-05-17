@@ -1,0 +1,50 @@
+syntax = "proto3";
+
+import "google/protobuf/wrappers.proto";
+import "google/protobuf/empty.proto";
+
+option csharp_namespace = "Protos";
+
+package duty;
+
+service DutyManager {
+	rpc LoginAsStreamer (google.protobuf.StringValue) returns (google.protobuf.StringValue);
+	rpc Login (Credentials) returns (google.protobuf.StringValue);
+	rpc StreamerHoldingLine(google.protobuf.StringValue) returns (stream google.protobuf.Empty);
+	rpc NewStreamerStream (google.protobuf.StringValue) returns (stream StreamerClient);
+	rpc RemoveStreamerStream (google.protobuf.StringValue) returns (stream StreamerClient);
+	rpc CreateNewJob (AuthJobRequest) returns (stream JobAnswer);
+	rpc StartJobObserver (google.protobuf.StringValue) returns (stream Job);
+	rpc AnswerToJobRequest (JobAnswer) returns (google.protobuf.Empty);
+}
+
+message StreamerClient{
+	string computerName = 1;
+	string id = 2;
+}
+
+message Credentials{
+	string username = 1;
+	string password = 2;
+}
+
+message AuthJobRequest{
+	string authKey = 1;
+	Job job = 2;
+	string streamerId = 3;
+}
+
+message JobAnswer{
+	string JobId = 1;
+	bool positive = 2; 
+}
+
+message Job{
+	string JobId = 1;
+	enum JobType{
+		None = 0;
+		CloseApplication = 1;
+		StartStreaming = 2;
+		StopStreaming = 3;
+	}
+}
