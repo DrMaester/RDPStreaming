@@ -35,16 +35,17 @@ message AuthJobRequest{
 }
 
 message JobAnswer{
-	string JobId = 1;
+	string jobId = 1;
 	bool positive = 2; 
 }
 
 message Job{
-	string JobId = 1;
+	string jobId = 1;
 	enum JobType{
 		None = 0;
 		CloseApplication = 1;
 		StartStreaming = 2;
 		StopStreaming = 3;
-	}
+	};
+	JobType jobType = 2;
 }

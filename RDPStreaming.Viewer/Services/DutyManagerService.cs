@@ -90,8 +90,9 @@ namespace RDPStreaming.Viewer.Services
             }
         }
 
-        public void StartStreamingJob(StreamerClient streamerClient)
+        public string StartStreamingJob(StreamerClient streamerClient)
         {
+            var jobId = Guid.NewGuid().ToString();
             var authRequest = new AuthJobRequest()
             {
                 AuthKey = _authKey,
@@ -104,6 +105,7 @@ namespace RDPStreaming.Viewer.Services
             };
 
             _client.CreateNewJob(authRequest);
+            return jobId;
         }
 
         public void StartCloseApplicationJob(StreamerClient streamerClient)

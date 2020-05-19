@@ -8,10 +8,27 @@
   <ItemGroup>
     <PackageReference Include="log4net" Version="2.0.8" />
     <PackageReference Include="System.Configuration.ConfigurationManager" Version="4.7.0" />
+    <PackageReference Include="System.Drawing.Common" Version="4.7.0" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\RDPStreaming.Grpc\RDPStreaming.Grpc.csproj" />
+    <ProjectReference Include="..\RDPStreaming\RDPStreaming.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="DesktopDuplication">
+      <HintPath>C:\Users\Daniel\Desktop\DesktopDuplication\DesktopDuplication.dll</HintPath>
+    </Reference>
+    <Reference Include="SharpDX">
+      <HintPath>C:\Users\Daniel\Desktop\DesktopDuplication\SharpDX.dll</HintPath>
+    </Reference>
+    <Reference Include="SharpDX.Direct3D11">
+      <HintPath>C:\Users\Daniel\Desktop\DesktopDuplication\SharpDX.Direct3D11.dll</HintPath>
+    </Reference>
+    <Reference Include="SharpDX.DXGI">
+      <HintPath>C:\Users\Daniel\Desktop\DesktopDuplication\SharpDX.DXGI.dll</HintPath>
+    </Reference>
   </ItemGroup>
 
   <ItemGroup>

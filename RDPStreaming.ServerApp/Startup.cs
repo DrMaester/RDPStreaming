@@ -19,6 +19,7 @@ namespace RDPStreaming.ServerApp
         {
             services.AddSingleton<LoginService>();
             services.AddSingleton<JobService>();
+            services.AddSingleton(new UdpService(7000));
             services.AddGrpc();
         }
 
@@ -31,6 +32,8 @@ namespace RDPStreaming.ServerApp
             }
 
             app.UseRouting();
+
+            app.ApplicationServices.GetService<UdpService>().Start();
 
             app.UseEndpoints(endpoints =>
             {
